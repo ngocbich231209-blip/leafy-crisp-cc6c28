@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CHÚC BƠ ĐÀ LẠT ERP</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#f7f8f4;--card:#fff;--text:#26332b;--muted:#718078;--brand:#176b4a;--soft:#dff1e7;--line:#e4e9e5}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;gap:11px;align-items:center}.logo{width:42px;height:42px;border-radius:13px;background:var(--soft);display:grid;place-items:center;font-size:22px}.brand h1{font-size:17px;margin:0}.brand small{color:var(--muted)}
+main{padding:16px 16px 90px;max-width:900px;margin:auto}.view{display:none}.view.active{display:block}h2{font-size:22px;margin:6px 0}.sub{color:var(--muted);margin:0 0 16px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat,.card{background:var(--card);border:1px solid var(--line);border-radius:17px;padding:15px}.stat span{font-size:13px;color:var(--muted)}.stat b{display:block;font-size:22px;margin-top:5px}
+.card{margin-top:12px}.card h3{margin:0 0 10px}.row{display:flex;justify-content:space-between;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}.badge{padding:5px 9px;border-radius:999px;background:var(--soft);color:var(--brand);font-size:12px;font-weight:700}
+.search{width:100%;padding:13px;border:1px solid var(--line);border-radius:13px;background:#fff;font-size:15px}.empty{padding:24px;text-align:center;color:var(--muted)}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px}
+.nav{border:0;background:transparent;color:var(--muted);font-size:11px;padding:5px}.nav div{font-size:20px}.nav.active{color:var(--brand)}
+button.secondary{border:0;border-radius:12px;padding:10px;background:#eef2ef;color:var(--text)}
+.notice{background:#fff7e6;border:1px solid #efd79f;border-radius:14px;padding:12px;margin-top:12px;font-size:13px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<div class="brand"><div class="logo">🥑</div><div><h1>CHÚC BƠ ĐÀ LẠT</h1><small>Quản lý bán hàng & kho</small></div></div>
+<div><button class="secondary" onclick="setupConnection()">🔗 Kết nối</button> <button class="secondary" onclick="refreshAll()">↻</button></div>
+</header>
+<main>
+<section id="dashboard" class="view active">
+<h2>Tổng quan</h2><p class="sub">Hệ thống quản lý</p>
+<div class="grid">
+<div class="stat"><span>Đơn hàng</span><b id="orders">—</b></div>
+<div class="stat"><span>Doanh thu</span><b id="revenue">—</b></div>
+<div class="stat"><span>Đã thu</span><b id="paid">—</b></div>
+<div class="stat"><span>Còn nợ</span><b id="debt">—</b></div>
+</div>
+<div class="card"><h3>Trạng thái</h3>
+<div class="row"><strong>Supabase</strong><span id="status" class="badge">Chưa kết nối</span></div>
+<div class="row"><strong>Sản phẩm</strong><span id="products">—</span></div>
+<div class="row"><strong>Khách hàng</strong><span id="customers">—</span></div>
+</div>
+<div class="notice">Đây là giao diện khung mobile-first. Bước tiếp theo sẽ nối dữ liệu thật từ Supabase; các sản phẩm, khách hàng, đơn hàng và giá đều thiết kế để có thể sửa/thêm sau này.</div>
+</section>
+<section id="orders" class="view"><h2>Đơn hàng</h2><p class="sub">Theo dõi và chốt đơn</p><input class="search" placeholder="Tìm đơn hàng..."><div class="card"><div class="empty">Chưa tải dữ liệu đơn hàng.</div></div></section>
+<section id="products" class="view"><h2>Sản phẩm</h2><p class="sub">Giá và trạng thái</p><input class="search" placeholder="Tìm sản phẩm..."><div class="card"><div class="empty">Chưa tải dữ liệu sản phẩm.</div></div></section>
+<section id="customers" class="view"><h2>Khách hàng</h2><p class="sub">Thông tin và lịch sử mua</p><input class="search" placeholder="Tên hoặc số điện thoại..."><div class="card"><div class="empty">Chưa tải dữ liệu khách hàng.</div></div></section>
+<section id="inventory" class="view"><h2>Kho hàng</h2><p class="sub">Tồn thực tế · đã giữ · có thể bán</p><div class="card"><div class="empty">Chưa tải dữ liệu tồn kho.</div></div></section>
+</main>
+<nav class="bottom">
+<button class="nav active" data-view="dashboard"><div>⌂</div>Tổng quan</button>
+<button class="nav" data-view="orders"><div>🧾</div>Đơn hàng</button>
+<button class="nav" data-view="products"><div>🥑</div>Sản phẩm</button>
+<button class="nav" data-view="customers"><div>👤</div>Khách hàng</button>
+<button class="nav" data-view="inventory"><div>📦</div>Kho</button>
+</nav>
+<script>
+const CONFIG_KEY="chucbo_supabase_config_v2";
+function getConfig(){try{return JSON.parse(localStorage.getItem(CONFIG_KEY)||"{}")}catch(e){return {}}}
+function saveConfig(url,key){localStorage.setItem(CONFIG_KEY,JSON.stringify({url:url.trim().replace(/\/$/,""),key:key.trim()}));}
+function showStatus(text, ok=false){
+  const el=document.getElementById("status");
+  el.textContent=text;
+  el.style.background=ok?"#dff1e7":"#fff0ef";
+  el.style.color=ok?"#176b4a":"#b42318";
+}
+function errorText(e){
+  if(!e) return "Không xác định";
+  return e.message || e.details || e.hint || e.code || (typeof e === "string" ? e : JSON.stringify(e));
+}
+async function setupConnection(){
+  const c=getConfig();
+  const url=prompt("Dán Project URL Supabase:",c.url||"");
+  if(!url) return;
+  const key=prompt("Dán Publishable key Supabase (không phải secret/service_role):",c.key||"");
+  if(!key) return;
+  saveConfig(url,key);
+  await refreshAll(true);
+}
+async function tableCount(sb,name){
+  const r=await sb.from(name).select("*",{count:"exact",head:true});
+  if(r.error) return {missing:true,error:r.error,count:null};
+  return {missing:false,error:null,count:r.count??0};
+}
+async function refreshAll(fromButton=false){
+  const c=getConfig();
+  if(!c.url||!c.key){showStatus("Chưa cấu hình");return;}
+  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(c.url)){
+    showStatus("URL Supabase không hợp lệ");return;
+  }
+  try{
+    // KHÔNG gọi /rest/v1/ ở đây: endpoint gốc này yêu cầu secret/admin key.
+    // Publishable key chỉ nên dùng trực tiếp cho các bảng dữ liệu của ứng dụng.
+    const sb=window.supabase?.createClient(c.url,c.key);
+    if(!sb) throw new Error("Không tải được thư viện Supabase");
+
+    const [products,customers,orders]=await Promise.all([
+      tableCount(sb,"products"),tableCount(sb,"customers"),tableCount(sb,"orders")
+    ]);
+
+    // Nếu bảng chưa tồn tại thì vẫn chứng minh được client đã tạo đúng;
+    // nếu bị 401/403 thì báo đúng lỗi key/policy.
+    const authError=[products,customers,orders].find(x=>x.error && /401|403|jwt|api key|apikey|permission/i.test(errorText(x.error)));
+    if(authError) throw authError.error;
+    showStatus("Đã kết nối Supabase",true);
+
+    document.getElementById("products").textContent=products.missing?"Chưa có bảng":products.count;
+    document.getElementById("customers").textContent=customers.missing?"Chưa có bảng":customers.count;
+    document.getElementById("orders").textContent=orders.missing?"Chưa có bảng":orders.count;
+
+    if(products.missing||customers.missing||orders.missing){
+      const missing=[products,customers,orders].map((x,i)=>x.missing?["products","customers","orders"][i]:null).filter(Boolean);
+      const el=document.querySelector(".notice");
+      el.textContent="Đã kết nối Supabase. Chưa có bảng: "+missing.join(", ")+". Kết nối đã OK; bước tiếp theo là tạo cấu trúc dữ liệu ERP.";
+    }
+  }catch(e){
+    showStatus("Lỗi: "+errorText(e));
+    console.error("Supabase connection error",e);
+  }
+}
+document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+ document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
+ document.getElementById(b.dataset.view).classList.add("active");
+});
+refreshAll();
+</script>
+</body>
+</html>
