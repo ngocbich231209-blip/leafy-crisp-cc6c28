@@ -65,7 +65,7 @@ function showStatus(text, ok=false){
 }
 function errorText(e){
   if(!e) return "Không xác định";
-  return e.message || e.details || e.hint || e.code || (typeof e === "string" ? e : JSON.stringify(e));
+  return JSON.stringify(e);
 }
 async function setupConnection(){
   const c=getConfig();
