@@ -78,7 +78,7 @@ async function setupConnection(){
 }
 async function tableCount(sb,name){
   const r=await sb.from(name).select("*",{count:"exact",head:true});
-  if(r.error) return {missing:true,error:r.error,count:null};
+  if(r.error) return {missing:false,error:r.error,count:null};
   return {missing:false,error:null,count:r.count??0};
 }
 async function refreshAll(fromButton=false){
