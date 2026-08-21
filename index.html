@@ -99,7 +99,7 @@ async function refreshAll(fromButton=false){
 
     // Nếu bảng chưa tồn tại thì vẫn chứng minh được client đã tạo đúng;
     // nếu bị 401/403 thì báo đúng lỗi key/policy.
-    const authError=[products,customers,orders].find(x=>x.error && /401|403|jwt|api key|apikey|permission/i.test(errorText(x.error)));
+    const authError=[products,customers,orders].find(x=>x.error);
     if(authError) throw authError.error;
     showStatus("Đã kết nối Supabase",true);
 
